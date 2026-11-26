@@ -131,7 +131,7 @@ export function availabilityRow(e, { highlight = false } = {}) {
   }
   const backup = e.backupUrl ? ` <a class="small" href="${h(e.backupUrl)}" target="_blank" rel="noopener noreferrer">Or search the library website<span class="visually-hidden"> (opens in a new tab)</span></a>` : '';
   return `<li class="avail-item${highlight ? ' highlight' : ''}">
-    <div><div class="svc">${h(e.service)}</div><div class="row small">${bits.join(' · ')}</div></div>
+    <div><div class="svc">${h(e.service)}</div><div class="row small">${bits.join('')}</div></div>
     <div class="act">${action}</div>
     ${sub.length || art || preview || backup ? `<div class="sub">${sub.join(' · ')}${backup}${art ? `<div class="row">${art}</div>` : ''}${preview}</div>` : ''}
   </li>`;

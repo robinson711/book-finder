@@ -192,10 +192,13 @@ legend { font-weight: 700; padding: 0 4px; }
 .avail-group { margin: 0 0 16px; }
 .avail-group h3 { margin: 12px 0 6px; font-size: 1rem; }
 .avail-list { list-style: none; padding: 0; margin: 0; }
-.avail-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: var(--surface); }
+.avail-item { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: var(--surface); }
 .avail-item .svc { font-weight: 600; }
-.avail-item .sub { color: var(--muted); font-size: 0.85rem; grid-column: 1 / -1; }
-.avail-item .act { justify-self: end; }
+.avail-item > div:first-child { flex: 1 1 11rem; min-width: 0; }
+.avail-item .row { gap: 6px; }
+.avail-item .chip { white-space: nowrap; }
+.avail-item .sub { color: var(--muted); font-size: 0.85rem; flex: 1 1 100%; }
+.avail-item .act { flex: 0 1 auto; margin-left: auto; }
 .avail-item.highlight { border: 2px solid var(--warn); }
 .unconfirmed { border: 2px dashed var(--border); border-radius: var(--radius); padding: 12px; background: var(--surface-2); }
 .unconfirmed h3 { margin-top: 0; }
