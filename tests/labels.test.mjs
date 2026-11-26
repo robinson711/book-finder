@@ -63,3 +63,12 @@ test('publisher collected-edition lines are not treated as story series', () => 
   assert.equal(isPublisherSeries('The Hunger Games'), false);
   assert.equal(isPublisherSeries('Discworld'), false);
 });
+
+import { isExcluded } from '../js/sources/openlibrary.js';
+test('English-only and no-comics rules; children\'s books are kept', () => {
+  assert.equal(isExcluded({ title: '아르테미스' }), true);
+  assert.equal(isExcluded({ title: 'Artemis', language: ['spa', 'eng'] }), false);
+  assert.equal(isExcluded({ title: 'Le Livre', language: ['fre'] }), true);
+  assert.equal(isExcluded({ title: 'The Martian', language: ['eng'], subject: ["Children's fiction"] }), false);
+  assert.equal(isExcluded({ title: 'Cheshire Crossing', language: ['eng'], subject: ['Graphic novels'] }), true);
+});

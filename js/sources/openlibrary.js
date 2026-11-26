@@ -42,6 +42,8 @@ export function isExcluded(doc) {
   if (fmts.length && fmts.every((f) => /comic|graphic novel|magazine|periodical/.test(f))) return true;
   // English only: keep works that list English (or list no language at all).
   if (Array.isArray(doc.language) && doc.language.length && !doc.language.includes('eng')) return true;
+  // No language recorded: leave out titles written in a non-Latin script.
+  if (!(doc.language || []).length && /[\u0370-\u03FF\u0400-\u04FF\u0590-\u06FF\u0E00-\u0E7F\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]/.test(String(doc.title || ''))) return true;
   return false;
 }
 
