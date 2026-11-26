@@ -55,3 +55,11 @@ test('owned books match by title and author on the device', () => {
   assert.equal(got[0].format, 'audiobook');
   assert.equal(ownedEntries({ workKey: 'OL2W', title: 'Emma', authors: [{ name: 'Jane Austen' }] }, owned).length, 0);
 });
+
+import { isPublisherSeries } from '../js/sources/wikidata.js';
+test('publisher collected-edition lines are not treated as story series', () => {
+  assert.equal(isPublisherSeries('The Cambridge Edition of the Works by Jane Austen'), true);
+  assert.equal(isPublisherSeries('Penguin Classics'), true);
+  assert.equal(isPublisherSeries('The Hunger Games'), false);
+  assert.equal(isPublisherSeries('Discworld'), false);
+});

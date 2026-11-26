@@ -42,7 +42,7 @@ export function cover(book, size = 'M', { alt = true } = {}) {
   const url = book.coverId ? coverUrl(book.coverId, size) : null;
   const title = h(book.title || 'Untitled');
   const author = h(book.author || book.authors?.[0]?.name || '');
-  const placeholder = `<div class="cover-placeholder"><strong>${title}</strong>${author ? `<span>${author}</span>` : ''}<span class="small">No cover available</span></div>`;
+  const placeholder = `<div class="cover-placeholder" aria-hidden="true"><strong>${title}</strong>${author ? `<span>${author}</span>` : ''}<span class="small">No cover available</span></div>`;
   if (!url) return `<div class="cover">${placeholder}</div>`;
   return `<div class="cover"><img src="${h(url)}" alt="${alt ? `Cover of ${title}` : ''}" loading="lazy" decoding="async" data-fallback="1"><template>${placeholder}</template></div>`;
 }

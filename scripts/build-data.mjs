@@ -53,7 +53,7 @@ export function gutenbergFromCsv(text) {
     const langs = (r[cl] || '').split(/[;,]\s*/).map((x) => x.trim());
     if (!langs.includes('en')) continue;
     const tags = `${r[cs] || ''} ${r[cb] || ''}`.toLowerCase();
-    if (/juvenile|children's|comic|periodicals|magazine/.test(tags)) continue;
+    if (/comic|periodicals|magazine/.test(tags)) continue;
     const title = (r[cti] || '').replace(/\s+/g, ' ').trim();
     if (!title) continue;
     const authors = (r[ca] || '')

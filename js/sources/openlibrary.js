@@ -27,10 +27,10 @@ const FIELDS = [
   'id_wikidata', 'edition_count', 'format', 'oclc',
 ].join(',');
 
-// Never shown: comics, graphic novels, magazines, children's books.
+// Never shown: comics, graphic novels and magazines.
+// (Children's and young-adult books are shown; there is just no separate children's mode.)
 export const EXCLUDED_SUBJECTS = [
   'comics', 'comic books, strips, etc', 'graphic novels', 'comics & graphic novels', 'manga', 'magazines', 'periodicals',
-  'juvenile fiction', 'juvenile literature', 'picture books', "children's fiction", "children's literature", 'board books',
 ];
 const EXCLUDED_KEYS = new Set(EXCLUDED_SUBJECTS.map((s) => s.replace(/[^a-z0-9]+/g, '_')));
 

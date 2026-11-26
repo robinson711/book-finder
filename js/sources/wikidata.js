@@ -37,7 +37,15 @@ export async function seriesForWork(work) {
     .filter(Boolean)
     .join(' UNION ');
   const { rows } = await sparql(`SELECT DISTINCT ?series ?seriesLabel WHERE { ${match} ?book wdt:P179 ?series . ${LABEL} } LIMIT 10`);
-  return rows.map((r) => ({ id: qid(v(r, 'series')), name: v(r, 'seriesLabel') })).filter((s) => safeQ(s.id));
+  return rows
+    .map((r) => ({ id: qid(v(r, 'series')), name: v(r, 'seriesLabel') }))
+    .filter((s) => safeQ(s.id) && !isPublisherSeries(s.name));
+}
+
+// Publishers' collected-edition lines (e.g. "The Cambridge Edition of the Works of ...")
+// are recorded as series in Wikidata but are not story series.
+export function isPublisherSeries(name) {
+  return /\b(edition|editions|collected works|works of|works by|classics|library)\b/i.test(String(name || ''));
 }
 
 // Kind of work, for labels on series pages.
@@ -192,7 +200,7 @@ export async function searchSeries(text) {
   u.searchParams.set('origin', '*');
   const { data } = await fetchJson(u.href, { ttlMinutes: 60 * 24 });
   return (data.search || [])
-    .filter((r) => /series|trilogy|saga|cycle|sequence|chronicles/i.test(r.description || '') && !/television|tv |film|video game|comic|manga|anime|podcast/i.test(r.description || ''))
+    .filter((r) => /series|duology|trilogy|tetralogy|quartet|pentalogy|saga|cycle|sequence|chronicles|books by|novels by/i.test(r.description || '') && !/television|tv |\d{4} film|film series|film directed|video game|comic|manga|anime|podcast|franchise|translation/i.test(r.description || ''))
     .map((r) => ({ id: r.id, name: r.label, description: r.description }))
     .filter((r) => /^Q\d+$/.test(r.id));
 }

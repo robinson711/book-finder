@@ -94,7 +94,7 @@ export async function availability(work) {
         status: 'free', kind: 'free', confirmed: true,
         url: `https://www.gutenberg.org/ebooks/${encodeURIComponent(id)}`,
         checkedAt: g.fetchedAt, abridged: detectAbridgment(title), editionTitle: title,
-        note: 'Public domain in the United States.',
+        note: `Public domain in the United States. Project Gutenberg ebook #${id}.`,
       });
     }
   } else {

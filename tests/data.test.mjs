@@ -3,14 +3,15 @@ import assert from 'node:assert/strict';
 import { gutenbergFromCsv, librivoxItem, standardEbooksFromAtom, robotsAllows, baenFromHtml } from '../scripts/build-data.mjs';
 import { libbySearchUrl, hooplaSearchUrl, overdriveSearchUrl, catalogSearchUrl, LIBRARY_PRESETS, validateCustomLibrary } from '../js/libraries.js';
 
-test('Gutenberg catalog: English text only, names re-ordered, children\'s books left out', () => {
+test('Gutenberg catalog: English text only, names re-ordered, children\'s books kept, comics left out', () => {
   const csv = 'Text#,Type,Issued,Title,Language,Authors,Subjects,LoCC,Bookshelves\n'
     + '345,Text,1995-10-01,Dracula,en,"Stoker, Bram, 1847-1912",Horror tales,PR,Gothic Fiction\n'
     + '1,Sound,2000-01-01,Audio,en,"X, Y",,,\n'
     + '2,Text,2000-01-01,Le Livre,fr,"Z, A",,,\n'
-    + '3,Text,2000-01-01,Kids,en,"Q, R",Juvenile fiction,,\n';
+    + '3,Text,2000-01-01,Kids,en,"Q, R",Juvenile fiction,,\n'
+    + '4,Text,2000-01-01,Funnies,en,"S, T",Comic books strips etc,,\n';
   const books = gutenbergFromCsv(csv);
-  assert.deepEqual(Object.keys(books), ['345']);
+  assert.deepEqual(Object.keys(books).sort(), ['3', '345']);
   assert.deepEqual(books['345'], ['Dracula', 'Bram Stoker']);
 });
 
