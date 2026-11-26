@@ -22,10 +22,16 @@ async function get(url, { binary = false, tries = 3 } = {}) {
   for (let i = 0; i < tries; i++) {
     try {
       const res = await fetch(url, { headers: { 'User-Agent': UA } });
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`);
+      if (!res.ok) {
+        const err = new Error(`${res.status} ${res.statusText} for ${url}`);
+        err.status = res.status;
+        throw err;
+      }
       return binary ? Buffer.from(await res.arrayBuffer()) : await res.text();
     } catch (e) {
       lastErr = e;
+      // A 4xx answer (other than 429) will not change on retry.
+      if (e.status && e.status >= 400 && e.status < 500 && e.status !== 429) break;
       await sleep(5000 * (i + 1));
     }
   }
@@ -66,19 +72,34 @@ export function gutenbergFromCsv(text) {
 async function gutenberg() {
   const name = 'Project Gutenberg';
   try {
+    // Gutenberg asks bulk users to prefer its mirrors; the main site is the last resort.
+    const tries = [
+      ['https://gutenberg.pglaf.org/cache/epub/feeds/pg_catalog.csv.gz', true],
+      ['https://aleph.gutenberg.org/cache/epub/feeds/pg_catalog.csv.gz', true],
+      ['https://www.gutenberg.org/cache/epub/feeds/pg_catalog.csv.gz', true],
+      ['https://www.gutenberg.org/cache/epub/feeds/pg_catalog.csv', false],
+    ];
     let text;
-    try {
-      text = gunzipSync(await get('https://www.gutenberg.org/cache/epub/feeds/pg_catalog.csv.gz', { binary: true })).toString('utf8');
-    } catch {
-      text = await get('https://www.gutenberg.org/cache/epub/feeds/pg_catalog.csv');
+    const errors = [];
+    for (const [url, gz] of tries) {
+      try {
+        const body = await get(url, { binary: gz });
+        text = (gz ? gunzipSync(body).toString('utf8') : body).replace(/^\uFEFF/, '');
+        if (text.startsWith('Text#')) break;
+        errors.push(`Unexpected content from ${url}`);
+        text = undefined;
+      } catch (e) {
+        errors.push(String(e.message || e));
+      }
     }
+    if (!text) throw new Error(errors.join(' | '));
     const books = gutenbergFromCsv(text);
     const count = Object.keys(books).length;
     if (count < 1000) throw new Error(`Only ${count} books found; the catalog format may have changed.`);
     await writeFile(new URL('gutenberg.json', OUT), JSON.stringify({ fetchedAt: now, books }));
     meta.sources.gutenberg = { name, ok: true, count, fetchedAt: now };
   } catch (e) {
-    meta.sources.gutenberg = { name, ok: false, error: String(e.message || e).slice(0, 200) };
+    meta.sources.gutenberg = { name, ok: false, error: String(e.message || e).slice(0, 600) };
   }
 }
 
@@ -106,7 +127,14 @@ async function librivox() {
     const books = [];
     for (let offset = 0; offset < 60000; offset += 500) {
       const url = `https://librivox.org/api/feed/audiobooks?format=json&extended=1&limit=500&offset=${offset}`;
-      const text = await get(url);
+      let text;
+      try {
+        text = await get(url);
+      } catch (e) {
+        // The API answers 404 once the offset passes the last record.
+        if (e.status === 404 && offset > 0) break;
+        throw e;
+      }
       let data;
       try {
         data = JSON.parse(text);
