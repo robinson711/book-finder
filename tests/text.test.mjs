@@ -55,3 +55,20 @@ test('owned-book file import: CSV and plain text', () => {
   assert.equal(b.books[1].author, 'Jane Austen');
   assert.equal(b.books[2].service, 'Kindle');
 });
+
+import { prefixQuery, coversQuery } from '../js/text.js';
+test('partial last word becomes a prefix search', () => {
+  assert.equal(prefixQuery('project hail mar'), 'project hail mar*');
+  assert.equal(prefixQuery('it'), null);
+  assert.equal(prefixQuery('9780593135204'), null);
+  assert.equal(prefixQuery('title:"dune"'), null);
+});
+test('coversQuery checks every typed word against the first results', () => {
+  const phm = [{ title: 'Project Hail Mary', authors: [{ name: 'Andy Weir' }] }];
+  const junk = [{ title: 'American Film', authors: [{ name: 'AFI' }] }];
+  assert.equal(coversQuery(phm, 'project hail mary'), true);
+  assert.equal(coversQuery(phm, 'project hail mar'), false);
+  assert.equal(coversQuery(phm, 'project hail mar', { lastIsPrefix: true }), true);
+  assert.equal(coversQuery(junk, 'project hail mar', { lastIsPrefix: true }), false);
+  assert.equal(coversQuery(phm, 'hail mary weir'), true);
+});

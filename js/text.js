@@ -170,3 +170,25 @@ export function formatPrice(amount, currency = 'USD') {
 export function slug(text) {
   return normalizeName(text).replace(/ /g, '-');
 }
+
+// ----- Partial-word search -----
+
+// "project hail mar" -> "project hail mar*" so the last, half-typed word matches
+// longer words. Returns null when the last word is too short or not plain letters.
+export function prefixQuery(q) {
+  const s = String(q ?? '').trim();
+  const m = s.match(/(^|\s)([A-Za-zÀ-ɏ']{3,})$/);
+  if (!m || /[*:"()]/.test(s)) return null;
+  return `${s}*`;
+}
+
+// True when one of the first results contains every typed word in its title,
+// subtitle or authors. With lastIsPrefix, the last word only has to start a word.
+export function coversQuery(works, q, { lastIsPrefix = false, top = 5 } = {}) {
+  const words = normalizeName(q).split(' ').filter((w) => w.length >= 2);
+  if (!words.length) return true;
+  return (works || []).slice(0, top).some((w) => {
+    const hay = normalizeName([w.title, w.subtitle, ...(w.authors || []).map((a) => a.name || a)].join(' ')).split(' ');
+    return words.every((word, i) => (lastIsPrefix && i === words.length - 1 ? hay.some((x) => x.startsWith(word)) : hay.includes(word)));
+  });
+}

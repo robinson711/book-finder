@@ -5,7 +5,7 @@ import * as openlibrary from '../sources/openlibrary.js';
 import * as wikidata from '../sources/wikidata.js';
 import * as freecatalogs from '../sources/freecatalogs.js';
 import { fetchJson } from '../net.js';
-import { cleanIsbn, isValidIsbn, formatDuration } from '../text.js';
+import { cleanIsbn, isValidIsbn, formatDuration, prefixQuery, coversQuery } from '../text.js';
 
 const PER_PAGE = 24;
 
@@ -40,7 +40,26 @@ export async function render({ params, isCurrent }) {
     } else if (type === 'title') query = { title: q };
     else if (type === 'author') query = { author: q };
     else query = { q };
-    const res = await openlibrary.search({ ...query, page, limit: PER_PAGE });
+    // Partial last word ("project hail mar"): if the plain search finds nothing that
+    // matches every word, search again with the last word as the start of a word.
+    const field = type === 'title' ? 'title' : type === 'author' ? 'author' : type === 'isbn' ? null : 'q';
+    const prefixed = field ? prefixQuery(q) : null;
+    let usedPrefix = false;
+    let res;
+    if (prefixed && params.get('prefix') === '1') {
+      res = await openlibrary.search({ ...query, [field]: prefixed, page, limit: PER_PAGE });
+      usedPrefix = true;
+    } else {
+      res = await openlibrary.search({ ...query, page, limit: PER_PAGE });
+      if (prefixed && page === 1 && !coversQuery(res.works, q)) {
+        const alt = await openlibrary.search({ ...query, [field]: prefixed, page, limit: PER_PAGE }).catch(() => null);
+        if (alt && coversQuery(alt.works, q, { lastIsPrefix: true })) {
+          res = alt;
+          usedPrefix = true;
+          params.set('prefix', '1');
+        }
+      }
+    }
     if (!isCurrent()) return;
     let works = applyRecordFilters(res.works, f);
     if (needsCheck(f)) {
@@ -55,7 +74,7 @@ export async function render({ params, isCurrent }) {
       ? bookGrid(works, chipsFor(works, statusChip))
       : `<p class="empty">No books matched${needsCheck(f) ? ' with confirmed availability on this page of results' : ''}.${type === 'isbn' ? ' Open Library has no record of this ISBN.' : ''}</p>`;
     const extra = type === 'author' ? out.innerHTML : '';
-    out.innerHTML = `${extra}<h2>Books</h2><p class="small muted">${res.total.toLocaleString()} results from Open Library${pages > 1 ? `, page ${page} of ${pages.toLocaleString()}` : ''}.</p>${listHtml}${pager(params, page, pages)}`;
+    out.innerHTML = `${extra}<h2>Books</h2><p class="small muted">${res.total.toLocaleString()} results from Open Library${pages > 1 ? `, page ${page} of ${pages.toLocaleString()}` : ''}.${usedPrefix ? ` Including words that start with “${h(q.trim().split(/\s+/).pop())}”.` : ''}</p>${listHtml}${pager(params, page, pages)}`;
     wireCoverFallbacks(out);
   } catch (err) {
     out.innerHTML = errorBox(`Couldn't search right now. ${err.message || ''}`, { url: `https://openlibrary.org/search?q=${encodeURIComponent(q)}`, text: 'Search Open Library directly' });
