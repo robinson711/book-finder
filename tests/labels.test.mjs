@@ -72,3 +72,6 @@ test('English-only and no-comics rules; children\'s books are kept', () => {
   assert.equal(isExcluded({ title: 'The Martian', language: ['eng'], subject: ["Children's fiction"] }), false);
   assert.equal(isExcluded({ title: 'Cheshire Crossing', language: ['eng'], subject: ['Graphic novels'] }), true);
 });
+test('non-Latin titles mis-tagged as English are left out', () => {
+  assert.equal(isExcluded({ title: 'Re:ゼロから始める異世界生活', language: ['eng'] }), true);
+});

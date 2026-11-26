@@ -89,11 +89,13 @@ async function renderQuery(title, extra, params, isCurrent, sort = 'rating', fre
   setTitle(title);
   const page = Math.max(1, Number(params.get('page') || 1));
   const f = readFilters(params);
-  const main = setMain(`<h1>${h(title)}</h1>${note ? `<p class="small muted">${h(note)}</p>` : ''}${filterForm(f)}<div id="results"><p class="loading">Loading…</p></div>`);
+  const heading = title.charAt(0).toUpperCase() + title.slice(1);
+  const main = setMain(`<h1>${h(heading)}</h1>${note ? `<p class="small muted">${h(note)}</p>` : ''}${filterForm(f)}<div id="results"><p class="loading">Loading…</p></div>`);
   wireFilters(main, params);
   const out = $('#results');
   try {
-    const res = await openlibrary.search({ extra, sort, page, limit: 24 });
+    // Browse lists ask Open Library for English-language works only.
+    const res = await openlibrary.search({ extra: `${extra} language:eng`, sort, page, limit: 24 });
     if (!isCurrent()) return;
     let works = applyRecordFilters(res.works, f);
     if (freeOnly) {
