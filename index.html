@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" data-theme="system">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Book Finder</title>
+  <meta name="description" content="Find where you can read or listen to a book: free, owned, in your subscriptions, at your library or to buy.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data: https://covers.openlibrary.org https://archive.org https://*.archive.org https://*.mzstatic.com; media-src https://audio-ssl.itunes.apple.com; connect-src 'self' https://openlibrary.org https://itunes.apple.com https://catalog.hathitrust.org https://query.wikidata.org https://www.wikidata.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="theme-color" content="#0b5cad">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="app-header">
+    <a class="brand" href="#/" aria-label="Book Finder home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="4" width="18" height="24" rx="2" fill="currentColor" opacity=".18"/><rect x="5" y="4" width="18" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="21" cy="19" r="6" class="brand-lens" stroke="currentColor" stroke-width="2.4"/><path d="M25.5 23.5 29 27" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <span data-app-name>Book Finder</span>
+    </a>
+    <span class="header-spacer"></span>
+    <a class="profile-chip" href="#/settings" id="profile-chip"></a>
+  </header>
+  <nav class="bottom-nav" aria-label="Main">
+    <a href="#/" data-nav="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Home</a>
+    <a href="#/browse" data-nav="browse"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Browse</a>
+    <a href="#/lists" data-nav="lists"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Lists</a>
+    <a href="#/alerts" data-nav="alerts"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Alerts <span id="alert-count"></span></span></a>
+    <a href="#/settings" data-nav="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Settings</a>
+  </nav>
+  <main id="main" tabindex="-1">
+    <noscript><p>Book Finder needs JavaScript turned on.</p></noscript>
+    <p class="loading">Loading…</p>
+  </main>
+  <div id="live" class="visually-hidden" aria-live="polite"></div>
+</body>
+</html>

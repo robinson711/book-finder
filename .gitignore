@@ -1,0 +1,5 @@
+# Built by the publish workflow, never committed
+data/
+_site/
+node_modules/
+.DS_Store

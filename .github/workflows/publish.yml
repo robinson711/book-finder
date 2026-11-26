@@ -1,0 +1,53 @@
+# Publishes the site to GitHub Pages.
+# Runs when changes are pushed to main, every Monday (to refresh the free-catalog
+# files), and when started by hand from the Actions tab ("Run workflow").
+name: Publish site
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run tests
+        run: node --test tests/*.test.mjs
+      - name: Download free catalogs
+        run: node scripts/build-data.mjs
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp -r index.html manifest.webmanifest sw.js css js assets vendor data _site/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
